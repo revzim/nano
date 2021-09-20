@@ -1,11 +1,11 @@
 # Nano [![Build Status][1]][2] [![GoDoc][3]][4] [![Go Report Card][5]][6] [![MIT licensed][7]][8] 
 
-[1]: https://github.com/lonng/nano/actions/workflows/go.yml/badge.svg?branch=master
-[2]: https://github.com/lonng/nano/actions/workflows/go.yml
-[3]: https://godoc.org/github.com/lonng/nano?status.svg
-[4]: https://godoc.org/github.com/lonng/nano
-[5]: https://goreportcard.com/badge/github.com/lonng/nano
-[6]: https://goreportcard.com/report/github.com/lonng/nano
+[1]: https://github.com/revzim/nano/actions/workflows/go.yml/badge.svg?branch=master
+[2]: https://github.com/revzim/nano/actions/workflows/go.yml
+[3]: https://godoc.org/github.com/revzim/nano?status.svg
+[4]: https://godoc.org/github.com/revzim/nano
+[5]: https://goreportcard.com/badge/github.com/revzim/nano
+[6]: https://goreportcard.com/report/github.com/revzim/nano
 [7]: https://img.shields.io/badge/license-MIT-blue.svg
 [8]: LICENSE
 
@@ -36,7 +36,7 @@ While you had processed your logic, you can response or push message to the clie
 
 Nano contains built-in distributed system solution, and make you creating a distributed game server easily.
 
-See: [The distributed chat demo](https://github.com/lonng/nano/tree/master/examples/cluster)
+See: [The distributed chat demo](https://github.com/revzim/nano/tree/master/examples/cluster)
 
 The Nano will remain simple, but you can perform any operations in the component and get the desired goals. You can startup a group of `Nano` application as agent to dispatch message to backend servers.
 
@@ -103,7 +103,7 @@ func (manager *PlayerManager) Login(s *session.Session, msg *ReqPlayerLogin) err
 ## Installation
 
 ```bash
-go get github.com/lonng/nano
+go get github.com/revzim/nano
 
 # dependencies
 go get -u github.com/pingcap/check

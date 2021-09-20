@@ -4,13 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lonng/nano/benchmark/io"
-	"github.com/lonng/nano/benchmark/testdata"
-	"github.com/lonng/nano/cluster"
-	"github.com/lonng/nano/component"
-	"github.com/lonng/nano/scheduler"
-	"github.com/lonng/nano/session"
 	. "github.com/pingcap/check"
+	"github.com/revzim/nano/benchmark/io"
+	"github.com/revzim/nano/benchmark/testdata"
+	"github.com/revzim/nano/cluster"
+	"github.com/revzim/nano/component"
+	"github.com/revzim/nano/scheduler"
+	"github.com/revzim/nano/session"
 )
 
 type nodeSuite struct{}

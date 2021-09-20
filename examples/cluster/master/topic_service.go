@@ -4,10 +4,10 @@ import (
 	"log"
 	"strings"
 
-	"github.com/lonng/nano/component"
-	"github.com/lonng/nano/examples/cluster/protocol"
-	"github.com/lonng/nano/session"
 	"github.com/pingcap/errors"
+	"github.com/revzim/nano/component"
+	"github.com/revzim/nano/examples/cluster/protocol"
+	"github.com/revzim/nano/session"
 )
 
 type User struct {

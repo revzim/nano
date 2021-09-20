@@ -1,8 +1,8 @@
 package master
 
 import (
-	"github.com/lonng/nano/component"
-	"github.com/lonng/nano/session"
+	"github.com/revzim/nano/component"
+	"github.com/revzim/nano/session"
 )
 
 var (

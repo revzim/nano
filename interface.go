@@ -30,12 +30,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/lonng/nano/cluster"
-	"github.com/lonng/nano/component"
-	"github.com/lonng/nano/internal/env"
-	"github.com/lonng/nano/internal/log"
-	"github.com/lonng/nano/internal/runtime"
-	"github.com/lonng/nano/scheduler"
+	"github.com/revzim/nano/cluster"
+	"github.com/revzim/nano/component"
+	"github.com/revzim/nano/internal/env"
+	"github.com/revzim/nano/internal/log"
+	"github.com/revzim/nano/internal/runtime"
+	"github.com/revzim/nano/scheduler"
 )
 
 var running int32

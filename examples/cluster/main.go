@@ -7,13 +7,13 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/lonng/nano"
-	"github.com/lonng/nano/examples/cluster/chat"
-	"github.com/lonng/nano/examples/cluster/gate"
-	"github.com/lonng/nano/examples/cluster/master"
-	"github.com/lonng/nano/serialize/json"
-	"github.com/lonng/nano/session"
 	"github.com/pingcap/errors"
+	"github.com/revzim/nano"
+	"github.com/revzim/nano/examples/cluster/chat"
+	"github.com/revzim/nano/examples/cluster/gate"
+	"github.com/revzim/nano/examples/cluster/master"
+	"github.com/revzim/nano/serialize/json"
+	"github.com/revzim/nano/session"
 	"github.com/urfave/cli"
 )
 
