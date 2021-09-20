@@ -41,7 +41,7 @@ import (
 var running int32
 
 // VERSION returns current nano version
-var VERSION = "0.5.0"
+var VERSION = "0.6.0"
 
 var (
 	// app represents the current server process
