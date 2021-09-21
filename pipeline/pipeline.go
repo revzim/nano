@@ -29,7 +29,7 @@ type (
 	}
 
 	pipelineChannel struct {
-		mu       sync.RWMutex
+		sync.RWMutex
 		handlers []Func
 	}
 )
@@ -46,8 +46,8 @@ func (p *pipeline) Inbound() Channel  { return p.inbound }
 
 // PushFront push a function to the front of the pipeline
 func (p *pipelineChannel) PushFront(h Func) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
+	p.Lock()
+	defer p.Unlock()
 	handlers := make([]Func, len(p.handlers)+1)
 	handlers[0] = h
 	copy(handlers[1:], p.handlers)
@@ -56,15 +56,15 @@ func (p *pipelineChannel) PushFront(h Func) {
 
 // PushFront push a function to the end of the pipeline
 func (p *pipelineChannel) PushBack(h Func) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
+	p.Lock()
+	defer p.Unlock()
 	p.handlers = append(p.handlers, h)
 }
 
 // Process process message with all pipeline functions
 func (p *pipelineChannel) Process(s *session.Session, msg *message.Message) error {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
+	p.RLock()
+	defer p.RUnlock()
 	if len(p.handlers) < 1 {
 		return nil
 	}

@@ -22,10 +22,13 @@ package session
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/revzim/nano/service"
 )
@@ -41,24 +44,37 @@ type NetworkEntity interface {
 	RemoteAddr() net.Addr
 }
 
+type (
+	// Session represents a client session which could storage temp data during low-level
+	// keep connected, all data will be released when the low-level connection was broken.
+	// Session instance related to the client will be passed to Handler method as the first
+	// parameter.
+	Session struct {
+		sync.RWMutex                        // protect data
+		id           int64                  // session global unique id
+		uid          int64                  // binding user id
+		uuid         string                 //
+		lastTime     int64                  // last heartbeat time
+		entity       NetworkEntity          // low-level network entity
+		data         map[string]interface{} // session data store
+		router       *Router
+	}
+)
+
+const (
+	UUIDDelim = 10
+)
+
 var (
 	//ErrIllegalUID represents a invalid uid
 	ErrIllegalUID = errors.New("illegal uid")
-)
+	// SessionKey Is Used To Re/Create UUID
+	UUIDGenKey = "" // fmt.Sprintf("%d", time.Now().Unix())
 
-// Session represents a client session which could storage temp data during low-level
-// keep connected, all data will be released when the low-level connection was broken.
-// Session instance related to the client will be passed to Handler method as the first
-// parameter.
-type Session struct {
-	sync.RWMutex                        // protect data
-	id           int64                  // session global unique id
-	uid          int64                  // binding user id
-	lastTime     int64                  // last heartbeat time
-	entity       NetworkEntity          // low-level network entity
-	data         map[string]interface{} // session data store
-	router       *Router
-}
+	UUIDSecretGenerator = func(id int64) []byte {
+		return []byte(fmt.Sprintf("%s%d", UUIDGenKey, id))
+	}
+)
 
 // New returns a new session instance
 // a NetworkEntity is a low-level network instance
@@ -125,7 +141,28 @@ func (s *Session) Bind(uid int64) error {
 	}
 
 	atomic.StoreInt64(&s.uid, uid)
+	// s.uuid = uuid.New().String()
+	s.initUUID("")
 	return nil
+}
+
+func (s *Session) initUUID(newUUID string) {
+	if s.uuid == "" {
+		if newUUID == "" {
+			// fmt.Sprintf("%s-%d", UUIDGenKey, s.uid)
+			s.uuid = uuid.NewSHA1(uuid.Nil, UUIDSecretGenerator(s.uid)).String()
+		} else {
+			s.uuid = newUUID
+		}
+	}
+}
+
+func (s *Session) UUID() string {
+	return s.uuid
+}
+
+func (s *Session) ShortUUID() string {
+	return s.uuid[len(s.uuid)-UUIDDelim:]
 }
 
 // Close terminate current session, session related data will not be released,

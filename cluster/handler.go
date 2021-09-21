@@ -45,6 +45,10 @@ import (
 	"github.com/revzim/nano/session"
 )
 
+const (
+	DefaultWSClientCloseMsg = "websocket: close 1000 (normal)"
+)
+
 var (
 	// cached serialized data
 	hrd []byte // handshake response data
@@ -74,10 +78,10 @@ func cache() {
 }
 
 type LocalHandler struct {
+	sync.RWMutex
 	localServices map[string]*component.Service // all registered service
 	localHandlers map[string]*component.Handler // all handler method
 
-	mu             sync.RWMutex
 	remoteServices map[string][]*clusterpb.MemberInfo
 
 	pipeline    pipeline.Pipeline
@@ -124,8 +128,8 @@ func (h *LocalHandler) initRemoteService(members []*clusterpb.MemberInfo) {
 }
 
 func (h *LocalHandler) addRemoteService(member *clusterpb.MemberInfo) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	for _, s := range member.Services {
 		log.Println("Register remote service", s)
@@ -134,8 +138,8 @@ func (h *LocalHandler) addRemoteService(member *clusterpb.MemberInfo) {
 }
 
 func (h *LocalHandler) delMember(addr string) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Lock()
+	defer h.Unlock()
 
 	for name, members := range h.remoteServices {
 		for i, maddr := range members {
@@ -161,8 +165,8 @@ func (h *LocalHandler) LocalService() []string {
 }
 
 func (h *LocalHandler) RemoteService() []string {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
+	h.RLock()
+	defer h.RUnlock()
 
 	var result []string
 	for service := range h.remoteServices {
@@ -220,7 +224,14 @@ func (h *LocalHandler) handle(conn net.Conn) {
 	for {
 		n, err := conn.Read(buf)
 		if err != nil {
-			log.Println(fmt.Sprintf("Read message error: %s, session will be closed immediately", err.Error()))
+			errMsg := func(str string) string {
+				prependStr := "handle read error"
+				if str == DefaultWSClientCloseMsg {
+					prependStr = "client closed connection"
+				}
+				return fmt.Sprintf("%s: %s", prependStr, str)
+			}
+			log.Println(errMsg(err.Error()))
 			return
 		}
 
@@ -292,8 +303,8 @@ func (h *LocalHandler) processPacket(agent *agent, p *packet.Packet) error {
 }
 
 func (h *LocalHandler) findMembers(service string) []*clusterpb.MemberInfo {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
+	h.RLock()
+	defer h.RUnlock()
 	return h.remoteServices[service]
 }
 

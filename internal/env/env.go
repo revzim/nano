@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/revzim/nano/auth"
 	"github.com/revzim/nano/serialize"
 	"github.com/revzim/nano/serialize/protobuf"
 	"google.golang.org/grpc"
@@ -50,6 +51,8 @@ var (
 	Serializer serialize.Serializer
 
 	GrpcOptions = []grpc.DialOption{grpc.WithInsecure()}
+
+	JWT *auth.JWT
 )
 
 func init() {

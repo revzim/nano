@@ -1,5 +1,12 @@
 # Nano [![Build Status][1]][2] [![GoDoc][3]][4] [![Go Report Card][5]][6] [![MIT licensed][7]][8]
 
+forked version of [nano](https://github.com/lonng/nano)
+added support for:
+- token based auth jwt
+- session/per packet auth
+- session uuid
+- golang client ws [nano-client](https://github.com/revzim/go-pomelo-client)
+
 [1]: https://github.com/revzim/nano/actions/workflows/go.yml/badge.svg?branch=master
 [2]: https://github.com/revzim/nano/actions/workflows/go.yml
 [3]: https://godoc.org/github.com/revzim/nano?status.svg

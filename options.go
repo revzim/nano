@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/revzim/nano/auth"
 	"github.com/revzim/nano/cluster"
 	"github.com/revzim/nano/component"
 	"github.com/revzim/nano/internal/env"
@@ -15,6 +16,18 @@ import (
 )
 
 type Option func(*cluster.Options)
+
+func WithJWT(authJWT *auth.JWT) Option {
+	return func(_ *cluster.Options) {
+		env.JWT = authJWT
+	}
+}
+
+func WithJWTOpts(signKey, algo string, genTokenFunc func(id, name string, duration int64) (string, error)) Option {
+	return func(_ *cluster.Options) {
+		env.JWT = auth.NewJWT(signKey, algo, genTokenFunc)
+	}
+}
 
 func WithPipeline(pipeline pipeline.Pipeline) Option {
 	return func(opt *cluster.Options) {

@@ -34,11 +34,10 @@ import (
 // from client will send to gate firstly and be forwarded to appropriate node.
 type cluster struct {
 	// If cluster is not large enough, use slice is OK
+	sync.RWMutex
 	currentNode *Node
 	rpcClient   *rpcClient
-
-	mu      sync.RWMutex
-	members []*Member
+	members     []*Member
 }
 
 func newCluster(currentNode *Node) *cluster {
@@ -80,9 +79,9 @@ func (c *cluster) Register(_ context.Context, req *clusterpb.RegisterRequest) (*
 
 	// Register services to current node
 	c.currentNode.handler.addRemoteService(req.MemberInfo)
-	c.mu.Lock()
+	c.Lock()
 	c.members = append(c.members, &Member{isMaster: false, memberInfo: req.MemberInfo})
-	c.mu.Unlock()
+	c.Unlock()
 	return resp, nil
 }
 
@@ -125,13 +124,13 @@ func (c *cluster) Unregister(_ context.Context, req *clusterpb.UnregisterRequest
 
 	// Register services to current node
 	c.currentNode.handler.delMember(req.ServiceAddr)
-	c.mu.Lock()
+	c.Lock()
 	if index == len(c.members)-1 {
 		c.members = c.members[:index]
 	} else {
 		c.members = append(c.members[:index], c.members[index+1:]...)
 	}
-	c.mu.Unlock()
+	c.Unlock()
 	return resp, nil
 }
 
@@ -141,26 +140,26 @@ func (c *cluster) setRpcClient(client *rpcClient) {
 
 func (c *cluster) remoteAddrs() []string {
 	var addrs []string
-	c.mu.RLock()
+	c.RLock()
 	for _, m := range c.members {
 		addrs = append(addrs, m.memberInfo.ServiceAddr)
 	}
-	c.mu.RUnlock()
+	c.RUnlock()
 	return addrs
 }
 
 func (c *cluster) initMembers(members []*clusterpb.MemberInfo) {
-	c.mu.Lock()
+	c.Lock()
 	for _, info := range members {
 		c.members = append(c.members, &Member{
 			memberInfo: info,
 		})
 	}
-	c.mu.Unlock()
+	c.Unlock()
 }
 
 func (c *cluster) addMember(info *clusterpb.MemberInfo) {
-	c.mu.Lock()
+	c.Lock()
 	var found bool
 	for _, member := range c.members {
 		if member.memberInfo.ServiceAddr == info.ServiceAddr {
@@ -174,11 +173,11 @@ func (c *cluster) addMember(info *clusterpb.MemberInfo) {
 			memberInfo: info,
 		})
 	}
-	c.mu.Unlock()
+	c.Unlock()
 }
 
 func (c *cluster) delMember(addr string) {
-	c.mu.Lock()
+	c.Lock()
 	var index = -1
 	for i, member := range c.members {
 		if member.memberInfo.ServiceAddr == addr {
@@ -189,5 +188,5 @@ func (c *cluster) delMember(addr string) {
 	if index != -1 {
 		c.members = append(c.members[:index], c.members[index+1:]...)
 	}
-	c.mu.Unlock()
+	c.Unlock()
 }

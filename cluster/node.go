@@ -60,6 +60,7 @@ type Options struct {
 // All services will register to cluster and messages will be forwarded to the node
 // which provides respective service
 type Node struct {
+	sync.RWMutex
 	Options            // current node options
 	ServiceAddr string // current server service address (RPC)
 
@@ -68,7 +69,6 @@ type Node struct {
 	server    *grpc.Server
 	rpcClient *rpcClient
 
-	mu       sync.RWMutex
 	sessions map[int64]*session.Session
 }
 
@@ -251,6 +251,23 @@ func (n *Node) listenAndServeWS() {
 	}
 
 	http.HandleFunc("/"+strings.TrimPrefix(env.WSPath, "/"), func(w http.ResponseWriter, r *http.Request) {
+		queryToken := r.URL.Query().Get("token")
+		queryID := r.URL.Query().Get("id")
+		if queryToken == "" {
+			log.Println("no token present in init conn request", r.RequestURI, r.RemoteAddr)
+			return
+		}
+		if queryID == "" {
+			log.Println("no id present in init conn request", r.RequestURI, r.RemoteAddr)
+			r.Body.Close()
+			return
+		}
+		claims := env.JWT.Parse(queryToken)
+		if claims["error"] != nil {
+			log.Println("bad token: ", queryToken)
+			return
+		}
+		// log.Println(fmt.Sprintf("jwt claims: %+v\n", claims))
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Println(fmt.Sprintf("Upgrade failure, URI=%s, Error=%s", r.RequestURI, err.Error()))
@@ -288,22 +305,22 @@ func (n *Node) listenAndServeWSTLS() {
 }
 
 func (n *Node) storeSession(s *session.Session) {
-	n.mu.Lock()
+	n.Lock()
 	n.sessions[s.ID()] = s
-	n.mu.Unlock()
+	n.Unlock()
 }
 
 func (n *Node) findSession(sid int64) *session.Session {
-	n.mu.RLock()
+	n.RLock()
 	s := n.sessions[sid]
-	n.mu.RUnlock()
+	n.RUnlock()
 	return s
 }
 
 func (n *Node) findOrCreateSession(sid int64, gateAddr string) (*session.Session, error) {
-	n.mu.RLock()
+	n.RLock()
 	s, found := n.sessions[sid]
-	n.mu.RUnlock()
+	n.RUnlock()
 	if !found {
 		conns, err := n.rpcClient.getConnPool(gateAddr)
 		if err != nil {
@@ -317,9 +334,9 @@ func (n *Node) findOrCreateSession(sid int64, gateAddr string) (*session.Session
 		}
 		s = session.New(ac)
 		ac.session = s
-		n.mu.Lock()
+		n.Lock()
 		n.sessions[sid] = s
-		n.mu.Unlock()
+		n.Unlock()
 	}
 	return s, nil
 }
@@ -391,10 +408,10 @@ func (n *Node) DelMember(_ context.Context, req *clusterpb.DelMemberRequest) (*c
 
 // SessionClosed implements the MemberServer interface
 func (n *Node) SessionClosed(_ context.Context, req *clusterpb.SessionClosedRequest) (*clusterpb.SessionClosedResponse, error) {
-	n.mu.Lock()
+	n.Lock()
 	s, found := n.sessions[req.SessionId]
 	delete(n.sessions, req.SessionId)
-	n.mu.Unlock()
+	n.Unlock()
 	if found {
 		scheduler.PushTask(func() { session.Lifetime.Close(s) })
 	}
@@ -403,10 +420,10 @@ func (n *Node) SessionClosed(_ context.Context, req *clusterpb.SessionClosedRequ
 
 // CloseSession implements the MemberServer interface
 func (n *Node) CloseSession(_ context.Context, req *clusterpb.CloseSessionRequest) (*clusterpb.CloseSessionResponse, error) {
-	n.mu.Lock()
+	n.Lock()
 	s, found := n.sessions[req.SessionId]
 	delete(n.sessions, req.SessionId)
-	n.mu.Unlock()
+	n.Unlock()
 	if found {
 		s.Close()
 	}

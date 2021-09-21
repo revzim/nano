@@ -43,7 +43,7 @@ type SessionFilter func(*session.Session) bool
 // Group represents a session group which used to manage a number of
 // sessions, data send to the group will send to all session in it.
 type Group struct {
-	mu       sync.RWMutex
+	sync.RWMutex
 	status   int32                      // channel current status
 	name     string                     // channel name
 	sessions map[int64]*session.Session // session id map to session instance
@@ -60,8 +60,8 @@ func NewGroup(n string) *Group {
 
 // Member returns specified UID's session
 func (c *Group) Member(uid int64) (*session.Session, error) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	for _, s := range c.sessions {
 		if s.UID() == uid {
@@ -72,14 +72,61 @@ func (c *Group) Member(uid int64) (*session.Session, error) {
 	return nil, ErrMemberNotFound
 }
 
+// Member returns specified UID's session
+func (c *Group) GetMember(uid int64) (*session.Session, error) {
+	c.RLock()
+	defer c.RUnlock()
+	return c.sessions[uid], ErrMemberNotFound
+}
+
+// Member returns specified UUID's session
+func (c *Group) MemberUUID(uuid string) (*session.Session, error) {
+	c.RLock()
+	defer c.RUnlock()
+
+	for _, s := range c.sessions {
+		if s.UUID() == uuid {
+			return s, nil
+		}
+	}
+
+	return nil, ErrMemberNotFound
+}
+
 // Members returns all member's UID in current group
 func (c *Group) Members() []int64 {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	var members []int64
 	for _, s := range c.sessions {
 		members = append(members, s.UID())
+	}
+
+	return members
+}
+
+// MembersUUID --
+func (c *Group) MembersUUID() []string {
+	c.RLock()
+	defer c.RUnlock()
+
+	var members []string
+	for _, s := range c.sessions {
+		members = append(members, s.UUID())
+	}
+
+	return members
+}
+
+// MembersShortUUID
+func (c *Group) MembersShortUUID() []string {
+	c.RLock()
+	defer c.RUnlock()
+
+	var members []string
+	for _, s := range c.sessions {
+		members = append(members, s.ShortUUID())
 	}
 
 	return members
@@ -100,8 +147,8 @@ func (c *Group) Multicast(route string, v interface{}, filter SessionFilter) err
 		log.Println(fmt.Sprintf("Multicast %s, Data=%+v", route, v))
 	}
 
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	for _, s := range c.sessions {
 		if !filter(s) {
@@ -130,8 +177,8 @@ func (c *Group) Broadcast(route string, v interface{}) error {
 		log.Println(fmt.Sprintf("Broadcast %s, Data=%+v", route, v))
 	}
 
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	for _, s := range c.sessions {
 		if err = s.Push(route, data); err != nil {
@@ -148,6 +195,12 @@ func (c *Group) Contains(uid int64) bool {
 	return err == nil
 }
 
+// Contains check whether a UUID is contained in current group or not
+func (c *Group) ContainsUUID(uuid string) bool {
+	_, err := c.MemberUUID(uuid)
+	return err == nil
+}
+
 // Add add session to group
 func (c *Group) Add(session *session.Session) error {
 	if c.isClosed() {
@@ -158,8 +211,8 @@ func (c *Group) Add(session *session.Session) error {
 		log.Println(fmt.Sprintf("Add session to group %s, ID=%d, UID=%d", c.name, session.ID(), session.UID()))
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	id := session.ID()
 	_, ok := c.sessions[session.ID()]
@@ -181,8 +234,8 @@ func (c *Group) Leave(s *session.Session) error {
 		log.Println(fmt.Sprintf("Remove session from group %s, UID=%d", c.name, s.UID()))
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	delete(c.sessions, s.ID())
 	return nil
@@ -194,8 +247,8 @@ func (c *Group) LeaveAll() error {
 		return ErrClosedGroup
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.Lock()
+	defer c.Unlock()
 
 	c.sessions = make(map[int64]*session.Session)
 	return nil
@@ -203,8 +256,8 @@ func (c *Group) LeaveAll() error {
 
 // Count get current member amount in the group
 func (c *Group) Count() int {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.RLock()
+	defer c.RUnlock()
 
 	return len(c.sessions)
 }
