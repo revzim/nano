@@ -70,7 +70,7 @@ func NewGroup(n string) *Group {
 // returns a new group instance with driver support
 // driverType = mongo | firebase
 // driverString = mongo uri | firebase cfg file path
-func NewGroupWithDriver(n string, driverType string) (*Group, error) {
+func NewGroupWithDriver(n string, driverType azdrivers.DriverKeyType) (*Group, error) {
 
 	g := &Group{
 		status:   groupStatusWorking,
@@ -78,12 +78,12 @@ func NewGroupWithDriver(n string, driverType string) (*Group, error) {
 		sessions: make(map[int64]*session.Session),
 	}
 	switch driverType {
-	case "mongo":
+	case azdrivers.MongoKeyType:
 		if env.MongoDriver == nil {
 			return nil, errors.New(fmt.Sprintf("%s driver not init! - use NewGroupWithNewDriver", driverType))
 		}
 		g.mongoDriver = env.MongoDriver
-	case "firebase":
+	case azdrivers.FirebaseKeyType:
 		if env.FirebaseDriver == nil {
 			return nil, errors.New(fmt.Sprintf("%s driver not init! - use NewGroupWithNewDriver", driverType))
 		}
