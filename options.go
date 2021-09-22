@@ -23,7 +23,7 @@ func WithJWT(authJWT *auth.JWT) Option {
 	}
 }
 
-func WithJWTOpts(signKey, algo string, genTokenFunc func(id, name string, duration int64) (string, error)) Option {
+func WithJWTOpts(signKey, algo string, genTokenFunc auth.JWTFunc) Option {
 	return func(_ *cluster.Options) {
 		env.JWT = auth.NewJWT(signKey, algo, genTokenFunc)
 	}

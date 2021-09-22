@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,10 +11,12 @@ import (
 )
 
 type (
+	JWTFunc func(claimsMap map[string]interface{}, duration int64) (string, error) // func(claimsMap map[string]interface{}, duration int64) (string, error) // func(id string, name string, duration int64, claims map[string]interface{}) (string, error) // func(id string, name string, duration int64) (string, error)
+
 	JWT struct {
 		algo          string
 		Parse         func(tokenString string) jwt.MapClaims
-		GenerateToken func(id string, name string, duration int64) (string, error)
+		GenerateToken JWTFunc // func(claimsMap map[string]interface{}, duration int64) (string, error)
 	}
 )
 
@@ -23,10 +27,11 @@ var (
 
 // func init() {}
 
-func NewJWT(signKey, algo string, genTokenFunc func(id, name string, duration int64) (string, error)) *JWT {
+func NewJWT(signKey, algo string, genTokenFunc JWTFunc) *JWT {
 	initJWT(signKey, algo)
 	if genTokenFunc == nil {
-		genTokenFunc = generateJWTToken
+		// genTokenFunc = generateJWTToken
+		genTokenFunc = generateJWTTokenWithClaims
 	}
 	return &JWT{
 		algo:          jwtAlgo,
@@ -74,28 +79,29 @@ func generateJWTToken(id, name string, duration int64) (string, error) {
 		"exp":  nowTime + duration,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtSigningKey)
-	if err != nil {
-		log.Println(err)
-	}
-	return tokenString, err
+	return token.SignedString(jwtSigningKey)
+	// tokenString, err := token.SignedString(jwtSigningKey)
+	// if err != nil {
+	// 	log.Println(err)
+	// }
+	// return tokenString, err
 }
 
-func generateJWTTokenWithClaims(id, name string, duration int64, claims *jwt.MapClaims) (string, error) {
-	if claims == nil {
-		nowTime := time.Now().Unix()
-		claims = &jwt.MapClaims{
-			"id":   id,
-			"name": name,
-			"iat":  nowTime,
-			"nbf":  nowTime - 10,
-			"exp":  nowTime + duration,
-		}
+func generateJWTTokenWithClaims(claimsMap map[string]interface{}, duration int64) (string, error) {
+	nowTime := time.Now().Unix()
+	if claimsMap == nil {
+		return "", errors.New("no claims!")
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtSigningKey)
+	claimsMap["iat"] = nowTime
+	claimsMap["nbf"] = nowTime - 10
+	claimsMap["exp"] = nowTime + duration
+
+	b, _ := json.Marshal(claimsMap)
+	var claims *jwt.MapClaims
+	err := json.Unmarshal(b, &claims)
 	if err != nil {
 		log.Println(err)
 	}
-	return tokenString, err
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSigningKey)
 }

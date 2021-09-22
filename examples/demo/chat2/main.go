@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/revzim/nano"
 	"github.com/revzim/nano/auth"
 	"github.com/revzim/nano/component"
@@ -167,7 +168,11 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	// http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
 	nanoJWT := auth.NewJWT("TESTJWTKEY", jwt.SigningMethodHS256.Name, nil)
-	log.Println(nanoJWT.GenerateToken("test", "test person", 30))
+	log.Println(nanoJWT.GenerateToken(map[string]interface{}{
+		"id":   "super user",
+		"name": "awesome man",
+		"cid":  uuid.New().String(),
+	}, 180))
 	nano.Listen(fmt.Sprintf(":%d", port),
 		nano.WithIsWebsocket(true),
 		nano.WithJWT(nanoJWT),

@@ -250,24 +250,32 @@ func (n *Node) listenAndServeWS() {
 		CheckOrigin:     env.CheckOrigin,
 	}
 
-	http.HandleFunc("/"+strings.TrimPrefix(env.WSPath, "/"), func(w http.ResponseWriter, r *http.Request) {
+	claimsFunc := func(r *http.Request) error {
 		queryToken := r.URL.Query().Get("token")
 		queryID := r.URL.Query().Get("id")
 		if queryToken == "" {
 			log.Println("no token present in init conn request", r.RequestURI, r.RemoteAddr)
-			return
+			return errors.New("no token present in init request")
 		}
 		if queryID == "" {
 			log.Println("no id present in init conn request", r.RequestURI, r.RemoteAddr)
 			r.Body.Close()
-			return
+			return errors.New("no id present in init request")
 		}
 		claims := env.JWT.Parse(queryToken)
 		if claims["error"] != nil {
 			log.Println("bad token: ", queryToken)
+			return errors.New("bad token in init request")
+		}
+		log.Println(fmt.Sprintf("jwt claims: %+v\n", claims))
+		return nil
+	}
+
+	http.HandleFunc("/"+strings.TrimPrefix(env.WSPath, "/"), func(w http.ResponseWriter, r *http.Request) {
+		err := claimsFunc(r)
+		if err != nil {
 			return
 		}
-		// log.Println(fmt.Sprintf("jwt claims: %+v\n", claims))
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Println(fmt.Sprintf("Upgrade failure, URI=%s, Error=%s", r.RequestURI, err.Error()))
