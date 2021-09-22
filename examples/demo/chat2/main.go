@@ -168,11 +168,14 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	// http.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
 	nanoJWT := auth.NewJWT("TESTJWTKEY", jwt.SigningMethodHS256.Name, nil)
-	log.Println(nanoJWT.GenerateToken(map[string]interface{}{
+
+	tknStr, _ := nanoJWT.GenerateToken(map[string]interface{}{
 		"id":   "super user",
 		"name": "awesome man",
 		"cid":  uuid.New().String(),
-	}, 180))
+	}, 180)
+	log.Println(tknStr)
+
 	nano.Listen(fmt.Sprintf(":%d", port),
 		nano.WithIsWebsocket(true),
 		nano.WithJWT(nanoJWT),

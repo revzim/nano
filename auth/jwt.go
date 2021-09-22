@@ -80,11 +80,6 @@ func generateJWTToken(id, name string, duration int64) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSigningKey)
-	// tokenString, err := token.SignedString(jwtSigningKey)
-	// if err != nil {
-	// 	log.Println(err)
-	// }
-	// return tokenString, err
 }
 
 func generateJWTTokenWithClaims(claimsMap map[string]interface{}, duration int64) (string, error) {
