@@ -70,6 +70,9 @@ type Node struct {
 	rpcClient *rpcClient
 
 	sessions map[int64]*session.Session
+
+	// mongoDriver    *drivers.AZMongoApp
+	// firebaseDriver *drivers.AZFirebaseApp
 }
 
 func (n *Node) Startup() error {

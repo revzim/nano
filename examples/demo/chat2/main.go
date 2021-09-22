@@ -180,6 +180,8 @@ func main() {
 		nano.WithIsWebsocket(true),
 		nano.WithJWT(nanoJWT),
 		// nano.WithJWTOpts("TESTJWTKEY", jwt.SigningMethodHS256.Name, nil),
+		// nano.WithMongo(os.Getenv("MONGO_URI")),
+		// nano.WithFirebase(os.Getenv("FIREBASE_CFG")),
 		nano.WithHandshakeValidator(func(dataBytes []byte) error {
 			// log.Println("handshake validator: ", dataBytes)
 			return nil

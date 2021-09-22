@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/revzim/nano/auth"
+	"github.com/revzim/nano/drivers"
 	"github.com/revzim/nano/serialize"
 	"github.com/revzim/nano/serialize/protobuf"
 	"google.golang.org/grpc"
@@ -53,6 +54,10 @@ var (
 	GrpcOptions = []grpc.DialOption{grpc.WithInsecure()}
 
 	JWT *auth.JWT
+
+	MongoDriver *drivers.AZMongoApp
+
+	FirebaseDriver *drivers.AZFirebaseApp
 )
 
 func init() {

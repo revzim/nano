@@ -7,6 +7,7 @@ import (
 	"github.com/revzim/nano/auth"
 	"github.com/revzim/nano/cluster"
 	"github.com/revzim/nano/component"
+	"github.com/revzim/nano/drivers"
 	"github.com/revzim/nano/internal/env"
 	"github.com/revzim/nano/internal/log"
 	"github.com/revzim/nano/internal/message"
@@ -26,6 +27,26 @@ func WithJWT(authJWT *auth.JWT) Option {
 func WithJWTOpts(signKey, algo string, genTokenFunc auth.JWTFunc) Option {
 	return func(_ *cluster.Options) {
 		env.JWT = auth.NewJWT(signKey, algo, genTokenFunc)
+	}
+}
+
+func WithMongo(uri string) Option {
+	return func(_ *cluster.Options) {
+		mongoApp, err := drivers.NewMongoApp(uri)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		env.MongoDriver = mongoApp
+	}
+}
+
+func WithFirebase(path string) Option {
+	return func(_ *cluster.Options) {
+		fbApp, err := drivers.NewFirebaseApp(path)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		env.FirebaseDriver = fbApp
 	}
 }
 

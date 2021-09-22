@@ -1,20 +1,24 @@
-# Nano [![Build Status][1]][2] [![GoDoc][3]][4] [![Go Report Card][5]][6] [![MIT licensed][7]][8]
+# [Nano][1] [![GoDoc][2]][3] [![Go Report Card][4]][5] [![MIT licensed][6]][7]
 
 forked version of [nano](https://github.com/lonng/nano)
-added support for:
+## added support for:
+- drivers:
+  - [mongoDB](https://www.mongodb.com/)
+  - [Firebase](https://firebase.google.com/)
 - token based auth jwt
 - session/per packet auth
 - session uuid
 - golang client ws [nano-client](https://github.com/revzim/go-pomelo-client)
 
-[1]: https://github.com/revzim/nano/actions/workflows/go.yml/badge.svg?branch=master
-[2]: https://github.com/revzim/nano/actions/workflows/go.yml
-[3]: https://godoc.org/github.com/revzim/nano?status.svg
-[4]: https://godoc.org/github.com/revzim/nano
-[5]: https://goreportcard.com/badge/github.com/revzim/nano
-[6]: https://goreportcard.com/report/github.com/revzim/nano
-[7]: https://img.shields.io/badge/license-MIT-blue.svg
-[8]: LICENSE
+[1]: https://github.com/revzim/nano
+[2]: https://godoc.org/github.com/revzim/nano?status.svg
+[3]: https://godoc.org/github.com/revzim/nano
+[4]: https://goreportcard.com/badge/github.com/revzim/nano
+[5]: https://goreportcard.com/report/github.com/revzim/nano
+[6]: https://img.shields.io/badge/license-MIT-blue.svg
+[7]: LICENSE
+
+#
 
 Nano is an easy to use, fast, lightweight game server networking library for Go.
 It provides a core network architecture and a series of tools and libraries that
