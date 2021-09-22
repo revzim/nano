@@ -16,6 +16,6 @@
 .idea/
 .vscode/
 
-/drivers/driver.go
+/drivers
 
 /bin

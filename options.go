@@ -7,7 +7,9 @@ import (
 	"github.com/revzim/nano/auth"
 	"github.com/revzim/nano/cluster"
 	"github.com/revzim/nano/component"
-	"github.com/revzim/nano/drivers"
+
+	// "github.com/revzim/nano/drivers"
+	"github.com/revzim/azdrivers"
 	"github.com/revzim/nano/internal/env"
 	"github.com/revzim/nano/internal/log"
 	"github.com/revzim/nano/internal/message"
@@ -32,7 +34,7 @@ func WithJWTOpts(signKey, algo string, genTokenFunc auth.JWTFunc) Option {
 
 func WithMongo(uri string) Option {
 	return func(_ *cluster.Options) {
-		mongoApp, err := drivers.NewMongoApp(uri)
+		mongoApp, err := azdrivers.NewMongoApp(uri)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
@@ -42,7 +44,7 @@ func WithMongo(uri string) Option {
 
 func WithFirebase(path string) Option {
 	return func(_ *cluster.Options) {
-		fbApp, err := drivers.NewFirebaseApp(path)
+		fbApp, err := azdrivers.NewFirebaseApp(path)
 		if err != nil {
 			log.Fatal(err.Error())
 		}

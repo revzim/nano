@@ -26,8 +26,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/revzim/azdrivers"
 	"github.com/revzim/nano/auth"
-	"github.com/revzim/nano/drivers"
 	"github.com/revzim/nano/serialize"
 	"github.com/revzim/nano/serialize/protobuf"
 	"google.golang.org/grpc"
@@ -55,9 +55,9 @@ var (
 
 	JWT *auth.JWT
 
-	MongoDriver *drivers.AZMongoApp
+	MongoDriver *azdrivers.AZMongoApp
 
-	FirebaseDriver *drivers.AZFirebaseApp
+	FirebaseDriver *azdrivers.AZFirebaseApp
 )
 
 func init() {

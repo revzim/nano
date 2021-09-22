@@ -26,7 +26,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/revzim/nano/drivers"
+	"github.com/revzim/azdrivers"
 	"github.com/revzim/nano/internal/env"
 	"github.com/revzim/nano/internal/log"
 	"github.com/revzim/nano/internal/message"
@@ -52,8 +52,8 @@ type (
 		name     string                     // channel name
 		sessions map[int64]*session.Session // session id map to session instance
 
-		mongoDriver    *drivers.AZMongoApp
-		firebaseDriver *drivers.AZFirebaseApp
+		mongoDriver    *azdrivers.AZMongoApp
+		firebaseDriver *azdrivers.AZFirebaseApp
 	}
 )
 
@@ -113,13 +113,13 @@ func NewGroupWithNewDriver(n string, driverType, driverString string) (*Group, e
 func (g *Group) InitDriver(driverType, driverString string) error {
 	switch driverType {
 	case "mongo":
-		mdriver, err := drivers.NewMongoApp(driverString)
+		mdriver, err := azdrivers.NewMongoApp(driverString)
 		if err != nil {
 			return err
 		}
 		g.mongoDriver = mdriver
 	case "firebase":
-		fdriver, err := drivers.NewFirebaseApp(driverString)
+		fdriver, err := azdrivers.NewFirebaseApp(driverString)
 		if err != nil {
 			return err
 		}
