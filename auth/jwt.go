@@ -11,12 +11,12 @@ import (
 )
 
 type (
-	JWTFunc func(claimsMap map[string]interface{}, duration int64) (string, error) // func(claimsMap map[string]interface{}, duration int64) (string, error) // func(id string, name string, duration int64, claims map[string]interface{}) (string, error) // func(id string, name string, duration int64) (string, error)
+	JWTFunc func(claimsMap map[string]interface{}, duration int64) (string, error)
 
 	JWT struct {
 		algo          string
 		Parse         func(tokenString string) jwt.MapClaims
-		GenerateToken JWTFunc // func(claimsMap map[string]interface{}, duration int64) (string, error)
+		GenerateToken JWTFunc
 	}
 )
 
