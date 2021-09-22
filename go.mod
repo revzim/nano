@@ -2,7 +2,7 @@ module github.com/revzim/nano
 
 go 1.16
 
-replace github.com/revzim/nano => ./
+// replace github.com/revzim/nano => ./
 
 require (
 	cloud.google.com/go v0.95.0 // indirect
