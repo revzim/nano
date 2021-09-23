@@ -1,3 +1,5 @@
+ARCHIVED
+
 # [Nano][1] [![GoDoc][2]][3] [![Go Report Card][4]][5] [![MIT licensed][6]][7]
 
 forked version of [nano](https://github.com/lonng/nano)
